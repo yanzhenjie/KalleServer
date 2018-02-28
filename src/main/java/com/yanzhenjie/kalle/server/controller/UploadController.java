@@ -15,6 +15,7 @@
  */
 package com.yanzhenjie.kalle.server.controller;
 
+import com.yanzhenjie.kalle.server.annotation.UserLogin;
 import com.yanzhenjie.kalle.server.exception.ParamExeception;
 import com.yanzhenjie.kalle.server.util.AppUtils;
 import com.yanzhenjie.kalle.server.util.IOUtils;
@@ -39,6 +40,7 @@ public class UploadController {
 
     private Logger mLogger = Logger.getLogger(getClass().getName());
 
+    @UserLogin
     @RequestMapping(
             value = "/form",
             method = {RequestMethod.POST, RequestMethod.PUT},
@@ -75,6 +77,7 @@ public class UploadController {
         return AppUtils.returnSucceedJson(stringMap);
     }
 
+    @UserLogin
     @RequestMapping(
             value = "/body/file",
             method = {RequestMethod.POST, RequestMethod.PUT},
@@ -110,6 +113,7 @@ public class UploadController {
         return AppUtils.returnSucceedJson(stringMap);
     }
 
+    @UserLogin
     @RequestMapping(
             value = "/body/json",
             method = {RequestMethod.POST, RequestMethod.PUT},
