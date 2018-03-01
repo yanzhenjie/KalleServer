@@ -1,7 +1,7 @@
 ﻿# KalleServer
 A simple http test api server. Currently as test server of [Kalle](https://github.com/yanzhenjie/Kalle), you can also deploy to your own server to do the test.  
 
-For usage and other information see [Document](http://yanzhenjie.github.io/AndPermission).  
+For usage and other information see [Document](http://yanzhenjie.github.io/KalleServer).  
 
 ## License
 ```text
