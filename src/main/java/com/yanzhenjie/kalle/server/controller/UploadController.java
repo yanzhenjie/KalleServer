@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Yan Zhenjie
+ * Copyright © 2018 Yan Zhenjie.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ public class UploadController {
     @UserLogin
     @RequestMapping(
             value = "/form",
+
             method = {RequestMethod.POST, RequestMethod.PUT},
             produces = AppUtils.APPLICATION_JSON
     )
