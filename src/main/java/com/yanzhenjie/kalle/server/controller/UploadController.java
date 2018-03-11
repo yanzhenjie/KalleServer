@@ -43,14 +43,15 @@ public class UploadController {
     @UserLogin
     @RequestMapping(
             value = "/form",
-
             method = {RequestMethod.POST, RequestMethod.PUT},
             produces = AppUtils.APPLICATION_JSON
     )
     public String formUpload(HttpServletRequest request,
                              @RequestParam(value = "name", required = false) String name,
                              @RequestParam(value = "age", required = false) String age,
-                             @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
+                             @RequestParam(value = "file1", required = false) MultipartFile file1,
+                             @RequestParam(value = "file2", required = false) MultipartFile file2,
+                             @RequestParam(value = "file3", required = false) MultipartFile file3) throws IOException {
         mLogger.info(String.format("Api get, name:%1$s, age: %2$s.", name, age));
 
         Map<String, String> stringMap = new HashMap<>();
@@ -58,22 +59,20 @@ public class UploadController {
         stringMap.put("age", age);
 
         String dirPath = request.getServletContext().getRealPath("/upload");
-        if (file != null && !file.isEmpty()) {
-            long timeStamp = System.currentTimeMillis();
-
-            String fileName = timeStamp + UUID.randomUUID().toString();
-            String extension = AppUtils.getFileExtension(file.getOriginalFilename());
-            if (!StringUtils.isEmpty(extension)) {
-                fileName += ("." + extension);
-            }
-            File tempFile = new File(dirPath, fileName);
-            IOUtils.createNewFile(tempFile);
-            OutputStream outputStream = new FileOutputStream(tempFile);
-            InputStream inputStream = file.getInputStream();
-            IOUtils.write(inputStream, outputStream);
-            IOUtils.closeQuietly(outputStream);
-
-            stringMap.put("file", AppUtils.createFileLink(request.getRequestURL().toString(), tempFile.getName()));
+        if (file1 != null) {
+            String extension = AppUtils.getFileExtension(file1.getOriginalFilename());
+            String fileName = saveFile(dirPath, extension, file1.getInputStream());
+            stringMap.put("file1", AppUtils.createFileLink(request.getRequestURL().toString(), fileName));
+        }
+        if (file2 != null) {
+            String extension = AppUtils.getFileExtension(file2.getOriginalFilename());
+            String fileName = saveFile(dirPath, extension, file2.getInputStream());
+            stringMap.put("file2", AppUtils.createFileLink(request.getRequestURL().toString(), fileName));
+        }
+        if (file3 != null) {
+            String extension = AppUtils.getFileExtension(file3.getOriginalFilename());
+            String fileName = saveFile(dirPath, extension, file3.getInputStream());
+            stringMap.put("file3", AppUtils.createFileLink(request.getRequestURL().toString(), fileName));
         }
         return AppUtils.returnSucceedJson(stringMap);
     }
@@ -92,24 +91,12 @@ public class UploadController {
         Map<String, String> stringMap = new HashMap<>();
         stringMap.put("filename", filename);
 
-        String dirPath = request.getServletContext().getRealPath("/upload");
-
         InputStream inputStream = request.getInputStream();
         if (inputStream != null) {
-            long timeStamp = System.currentTimeMillis();
-
-            String fileName = timeStamp + UUID.randomUUID().toString();
+            String dirPath = request.getServletContext().getRealPath("/upload");
             String extension = AppUtils.getFileExtension(filename);
-            if (!StringUtils.isEmpty(extension)) {
-                fileName += ("." + extension);
-            }
-            File tempFile = new File(dirPath, fileName);
-            IOUtils.createNewFile(tempFile);
-            OutputStream outputStream = new FileOutputStream(tempFile);
-            IOUtils.write(inputStream, outputStream);
-            IOUtils.closeQuietly(outputStream);
-
-            stringMap.put("file", AppUtils.createFileLink(request.getRequestURL().toString(), tempFile.getName()));
+            String fileName = saveFile(dirPath, extension, inputStream);
+            stringMap.put("file", AppUtils.createFileLink(request.getRequestURL().toString(), fileName));
         }
         return AppUtils.returnSucceedJson(stringMap);
     }
@@ -123,19 +110,28 @@ public class UploadController {
     public String bodyJson(HttpServletRequest request, @RequestBody String json) throws IOException {
         Map<String, String> stringMap = new HashMap<>();
 
-        String dirPath = request.getServletContext().getRealPath("/upload");
+        InputStream inputStream = request.getInputStream();
+        if (inputStream != null) {
+            String dirPath = request.getServletContext().getRealPath("/upload");
+            String fileName = saveFile(dirPath, ".json", inputStream);
+            stringMap.put("file", AppUtils.createFileLink(request.getRequestURL().toString(), fileName));
+        }
+        return AppUtils.returnSucceedJson(stringMap);
+    }
 
+    private String saveFile(String dirPath, String extension, InputStream inputStream) throws IOException {
         long timeStamp = System.currentTimeMillis();
-
-        String fileName = timeStamp + UUID.randomUUID().toString() + ".json";
+        String fileName = timeStamp + UUID.randomUUID().toString();
+        if (!StringUtils.isEmpty(extension)) {
+            fileName += ("." + extension);
+        }
         File tempFile = new File(dirPath, fileName);
         IOUtils.createNewFile(tempFile);
         OutputStream outputStream = new FileOutputStream(tempFile);
-        IOUtils.write(outputStream, json);
+        IOUtils.write(inputStream, outputStream);
         IOUtils.closeQuietly(outputStream);
 
-        stringMap.put("json", AppUtils.createFileLink(request.getRequestURL().toString(), tempFile.getName()));
-        return AppUtils.returnSucceedJson(stringMap);
+        return tempFile.getName();
     }
 
 }
