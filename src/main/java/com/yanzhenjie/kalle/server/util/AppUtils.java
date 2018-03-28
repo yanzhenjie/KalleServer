@@ -15,11 +15,14 @@
  */
 package com.yanzhenjie.kalle.server.util;
 
-import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
+import com.yanzhenjie.kalle.server.entity.Page;
+import com.yanzhenjie.kalle.server.entity.PageData;
 import org.springframework.util.StringUtils;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -42,6 +45,24 @@ public final class AppUtils {
      */
     public static final String APPLICATION_STREAM = "application/octet-stream";
 
+    private static final Gson GSON = new Gson();
+
+    /**
+     * Transform page data.
+     */
+    public static <T> PageData<T> transformPageData(int pageNum, int pageCount, int itemTotalCount, List<T> dataList) {
+        PageData<T> pageData = new PageData<>();
+        Page page = new Page();
+        page.setPageNum(pageNum);
+        page.setPageSize(dataList.size());
+        page.setPageCount(pageCount);
+        page.setTotalSize(itemTotalCount);
+
+        pageData.setDataList(dataList);
+        pageData.setPage(page);
+        return pageData;
+    }
+
     /**
      * Succeed json.
      */
@@ -50,14 +71,14 @@ public final class AppUtils {
         returned.put("succeed", true);
         returned.put("code", 200);
         returned.put("data", data);
-        return JSON.toJSONString(returned);
+        return GSON.toJson(returned);
     }
 
     /**
      * Failed json.
      */
     public static String returnFailedJson(int status, String message) {
-        return JSON.toJSONString(returnFailedMap(status, message));
+        return GSON.toJson(returnFailedMap(status, message));
     }
 
     /**
@@ -89,8 +110,7 @@ public final class AppUtils {
             int filenamePos = url.lastIndexOf('/');
             String filename = 0 <= filenamePos ? url.substring(filenamePos + 1) : url;
 
-            if (!filename.isEmpty() &&
-                    Pattern.matches("[a-zA-Z_0-9\\.\\-\\(\\)\\%]+", filename)) {
+            if (!filename.isEmpty() && Pattern.matches("[a-zA-Z_0-9\\.\\-\\(\\)\\%]+", filename)) {
                 int dotPos = filename.lastIndexOf('.');
                 if (0 <= dotPos) {
                     return filename.substring(dotPos + 1);

@@ -16,10 +16,14 @@
 package com.yanzhenjie.kalle.server.controller;
 
 import com.yanzhenjie.kalle.server.annotation.UserLogin;
+import com.yanzhenjie.kalle.server.entity.News;
+import com.yanzhenjie.kalle.server.entity.PageData;
 import com.yanzhenjie.kalle.server.util.AppUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -29,6 +33,8 @@ import java.util.logging.Logger;
 @RestController
 @RequestMapping("/method")
 public class MethodController {
+
+    private static final int ITEM_TOTAL_COUNT = 500;
 
     private Logger mLogger = Logger.getLogger(getClass().getName());
 
@@ -41,6 +47,33 @@ public class MethodController {
         stringMap.put("name", name);
         stringMap.put("age", age);
         return AppUtils.returnSucceedJson(stringMap);
+    }
+
+    @UserLogin
+    @GetMapping(value = "/get/list", produces = AppUtils.APPLICATION_JSON)
+    public String apiGetList(@RequestParam(name = "pageNum", required = false, defaultValue = "1") int pageNum,
+                             @RequestParam(name = "pageSize", required = false, defaultValue = "50") int pageSize) {
+        mLogger.info("Api get List.");
+
+        pageSize = Math.max(1, pageSize);
+        int itemTotalCount = ITEM_TOTAL_COUNT;
+        int pageCount = itemTotalCount / pageSize + (itemTotalCount % pageSize > 0 ? 1 : 0);
+        pageNum = Math.max(1, pageNum);
+        pageNum = Math.min(pageCount, pageNum);
+
+        List<News> newsList = new ArrayList<>();
+
+        int start = Math.max(0, (pageNum - 1) * pageSize);
+        int loadCount = pageNum < pageCount ? pageSize : itemTotalCount % pageSize;
+        for (int i = start; i < start + loadCount; i++) {
+            News news = new News();
+            news.setTitle(String.format("I am title %1$d.", i));
+            news.setContent(String.format("I am content %1$d.", i));
+            newsList.add(news);
+        }
+
+        PageData<News> pageData = AppUtils.transformPageData(pageNum, pageCount, itemTotalCount, newsList);
+        return AppUtils.returnSucceedJson(pageData);
     }
 
     @UserLogin

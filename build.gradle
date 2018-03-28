@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.alibaba:fastjson:1.1.64.android'
+    compile 'com.google.code.gson:gson:2.8.2'
 
     compile 'jstl:jstl:1.2'
     compile 'javax:javaee-api:8.0'
