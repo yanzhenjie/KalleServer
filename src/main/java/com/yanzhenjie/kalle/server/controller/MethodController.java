@@ -56,22 +56,21 @@ public class MethodController {
         mLogger.info("Api get List.");
 
         pageSize = Math.max(1, pageSize);
+        pageNum = Math.max(1, pageNum);
         int itemTotalCount = ITEM_TOTAL_COUNT;
         int pageCount = itemTotalCount / pageSize + (itemTotalCount % pageSize > 0 ? 1 : 0);
-        pageNum = Math.max(1, pageNum);
-        pageNum = Math.min(pageCount, pageNum);
 
         List<News> newsList = new ArrayList<>();
-
-        int start = Math.max(0, (pageNum - 1) * pageSize);
-        int loadCount = pageNum < pageCount ? pageSize : itemTotalCount % pageSize;
-        for (int i = start; i < start + loadCount; i++) {
-            News news = new News();
-            news.setTitle(String.format("I am title %1$d.", i));
-            news.setContent(String.format("I am content %1$d.", i));
-            newsList.add(news);
+        if (pageNum <= pageCount) {
+            int start = Math.max(0, (pageNum - 1) * pageSize);
+            int loadCount = pageNum < pageCount ? pageSize : itemTotalCount % pageSize;
+            for (int i = start; i < start + loadCount; i++) {
+                News news = new News();
+                news.setTitle(String.format("I am title %1$d.", i));
+                news.setContent(String.format("I am content %1$d.", i));
+                newsList.add(news);
+            }
         }
-
         PageData<News> pageData = AppUtils.transformPageData(pageNum, pageCount, itemTotalCount, newsList);
         return AppUtils.returnSucceedJson(pageData);
     }
