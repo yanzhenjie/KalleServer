@@ -60,10 +60,15 @@ public class MethodController {
         int itemTotalCount = ITEM_TOTAL_COUNT;
         int pageCount = itemTotalCount / pageSize + (itemTotalCount % pageSize > 0 ? 1 : 0);
 
+        System.out.println("pageNum:" + pageNum);
+        System.out.println("pageCount:" + pageCount);
+
         List<News> newsList = new ArrayList<>();
         if (pageNum <= pageCount) {
             int start = Math.max(0, (pageNum - 1) * pageSize);
-            int loadCount = pageNum < pageCount ? pageSize : itemTotalCount % pageSize;
+            int loadCount = pageNum <= pageCount ? pageSize : itemTotalCount % pageSize;
+            System.out.println("start:" + start);
+            System.out.println("loadCount:" + loadCount);
             for (int i = start; i < start + loadCount; i++) {
                 News news = new News();
                 news.setTitle(String.format("I am title %1$d.", i));
